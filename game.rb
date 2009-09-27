@@ -222,7 +222,7 @@ module TDA
             player.enqueue_message("Play a card!\r\n#{player.hand}")
             @cards_played << player.add_to_flight
             if @cards_played.length == 1 || @cards_played[-2].strength > @cards_played.last.strength
-              @cards_played.last.trigger 
+              @cards_played.last.trigger(@gambit.controller)
               @gambit.controller.broadcast "Power triggers."
             end
           }

@@ -6,11 +6,11 @@ module TDA
     def initialize(strength, type, power = nil)
       @strength = strength
       @type = type
-      @power = power || Proc.new { }
+      @power = power || Proc.new { |controller| }
     end
     
-    def trigger
-      @power.call
+    def trigger(controller)
+      @power.call(controller)
     end
 
     def to_s
