@@ -1,0 +1,22 @@
+Rules:
+http://www.wizards.com/dnd/files/ThreeAnte_rulebook.zip
+
+TODO:
+Special flights
+Triggered Powers
+
+Stuff that's done:
+1. Entering the game. (Fail: No way to start the game arbitrarily.)
+2. Moving gold between players and the pot. (Fail: No way to move from player to player.)
+3. Initializing and drawing from the deck. (Fail: No way to transfer cards between players.)
+4. Playing an entire gambit. (Fail: There are at least two miscellaneous bugs I have run across but decided against repro'ing because I'm fucking tired, both coming up in specific situations (i.e. they don't always come up).)
+4a. Choosing ante cards. (Fail: Tied antes don't happen; it just bypasses.)
+4b. Playing through rounds, including choosing leader, altering turn order, power activation, and changing leader based on previous round.
+4c. Handling the end of gambit is pretty decent. (Fail: Gambit is supposed to end immediately when pot is empty, but instead it's played through. Need to check for that and throw an exception after card plays to climb the stack.)
+
+And best of all, there are hooks for just about everything I still need to build. I'm not sure how to hook in the Druid power (reversal of how gambit victory is calculated). I figure I'll just victory calculation into a method and let it get overridden in the eigenclass by the power. Okay so I guess I do know how to hook it in.
+
+I should also fix cards so that they have properties rather than just "type"s. Extra flexibility is teh good.
+
+I need to figure out how to handle debt, as well as the ability to buy cards. I also need to add chat capability (meh) and status reports in response to queries (how much is in the pot? how strong is his flight? how many cards in his hand? how much in his hoard? etc.). OTOH, a lot of this would be dealt with better via a graphical client.
+
