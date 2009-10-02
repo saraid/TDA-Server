@@ -140,16 +140,10 @@ module TDA
   end
 
   def TDA.load_cards(deck)
-    deck << Archmage.new
-    deck << Bahamut.new
-    deck << Dracolich.new
-    deck << Dragonslayer.new
-    deck << Druid.new
-    deck << Fool.new
-    deck << Priest.new
-    deck << Princess.new
-    deck << Thief.new
-    deck << Tiamat.new
+    # Add one of each non-dragon card.
+    TDA.constants.each { |class_name|
+      deck << TDA.const_get(class_name).new if class_name.class == TDA::Card
+    }
     [1, 2, 3, 5,  7,  9].each { |str| deck << BlackDragon.new(str)  }
     [1, 2, 4, 7,  9, 11].each { |str| deck << BlueDragon.new(str)   }
     [1, 2, 4, 5,  7,  9].each { |str| deck << BrassDragon.new(str)  }
