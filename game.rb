@@ -84,45 +84,6 @@ module TDA
     class History < Array
     end
 
-    class Deck < Array
-      def initialize
-        @discards = []
-        TDA.load_cards(self)
-        reshuffle
-      end
-
-      def draw(amt)
-        cards = []
-        if amt > self.length
-          remainder = amt - self.length
-          self.length.times do |i| cards << self.shift end
-          reshuffle
-          remainder.times do |i| cards << self.shift end
-        else
-          amt.times do |i| cards << self.shift end
-        end
-        cards
-      end
-
-      def reshuffle(pristine = false)
-        @discards.each { |card| self << card }
-        self.size.times do |src|
-          dest = rand(self.size).round
-          t = self[src]
-          self[src] = self[dest]
-          self[dest] = t
-        end
-      end
-
-      def last_discard
-        @discards.last
-      end
-
-      def discard(card)
-        @discards << card
-      end
-    end
-
     @game_begun = false
     attr_reader :deck
     def begin_game
@@ -133,7 +94,7 @@ module TDA
       broadcast "Game begun!"
       
       @history = History.new
-      @deck = Deck.new
+      @deck = TDA::Deck.new
       all_players { |player| 
         player.receives_50_gold
         player.draws_6_cards
