@@ -41,9 +41,11 @@ module TDA
 
   def TDA.load_cards(deck)
     # Add one of each non-dragon card.
-    TDA::Card.constants.each { |name|
-      deck << TDA::Card.const_get(name).new unless name[-6..-1] == 'Dragon' || name.class != TDA::Card::Card
+    TDA::Card.constants.each_with_index { |name, index|
+      card = TDA::Card.const_get(name).new unless (name == "Card" || name[-6..-1]== "Dragon")
+      deck << card if card && (card.mortal? || card.dragon_god? || card.undead_dragon?)
     }
+
     [1, 2, 3, 5,  7,  9].each { |str| deck << TDA::Card::BlackDragon.new(str)  }
     [1, 2, 4, 7,  9, 11].each { |str| deck << TDA::Card::BlueDragon.new(str)   }
     [1, 2, 4, 5,  7,  9].each { |str| deck << TDA::Card::BrassDragon.new(str)  }
@@ -58,11 +60,16 @@ module TDA
 
   module Card
     class Card
-      attr_accessor :strength, :type
+      attr_reader :strength
+
+      KNOWN_PROPERTIES = [
+        :dragon, :mortal, :good, :evil, :god, :undead
+      ].freeze
       
-      def initialize(strength, type, power = nil)
+      def initialize(strength, properties, power = nil)
         @strength = strength
-        @type = type
+        @properties = properties.to_s.split('_')
+        @properties.reject! { |prop| KNOWN_PROPERTIES.include? prop }
         @power = power || Proc.new { |controller| }
       end
       
@@ -73,6 +80,15 @@ module TDA
       def to_s
         name = self.class.name
         "#{name[name.rindex(':')+1..-1]} #{@strength}"
+      end
+
+      def test_properties(properties)
+        properties.to_s[0...-1].split('_').all? { |prop| @properties.include? prop }
+      end
+
+      def method_missing(id, *args, &block)
+        return test_properties(id) if id.to_s =~ /^\w+\?$/
+        super
       end
     end
 
