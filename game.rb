@@ -1,57 +1,30 @@
-require 'gserver'
+require 'server'
 require 'cards'
 require 'player'
 
 module TDA
-  class TDAServer < GServer
-
+  class Game
     PLAYER_CAP = 6
 
-    #
-    # Server Stuff
-    #
-
+    attr_accessor :server
     def initialize
-      super(10001, DEFAULT_HOST, PLAYER_CAP)
-      self.audit = true
+      @server = Server.new(self, PLAYER_CAP)
       @players = []
-    end
 
-    def serve(io)
-      io.print("Welcome to TDA! What's your name? ")
-      begin
-        player = Player.new(io.gets.strip.gsub(/\W/,''), self)
-        add_player player
-        success = true
-      rescue Exception => e
-        log e.message
-        success = false
-      end
-      if success
-        prompt = '> '
-        io.print prompt
-        prompted = true
-
-        loop do
-          if IO.select([io], nil, nil, 0.5)
-            player.receive_input = io.gets.chop
-            prompted = false
-          elsif player.message_pending?
-            io.puts "\r" if prompted
-            io.puts "#{player.dequeue_message}\r"
-            io.print prompt
-            prompted = true
-          end
-        end
-      end
+      # Start dancing!
+      @server.start
     end
 
     def log(msg)
-      super(msg)
+      @server.log msg
     end
 
     def debug(msg)
       log("[DEBUG] #{msg}")
+    end
+
+    def stopped?
+      @server.stopped?
     end
 
     #
@@ -86,7 +59,7 @@ module TDA
 
     @game_begun = false
     attr_reader :deck
-    def begin_game
+    def begin
       return if @game_begun
       if @players.length < 1
         raise "No one's in the game!"
@@ -101,7 +74,7 @@ module TDA
       }
       
       @game_begun = true
-      @history << @current_gambit = Gambit.new(self) until @players.any? { |player| player.hoard <= 0 }
+      @history << @current_gambit = Gambit.new(self).start until @players.any? { |player| player.hoard <= 0 }
     end
 
     def request_ante
@@ -121,7 +94,9 @@ module TDA
       def initialize(controller)
         @controller = controller
         @pot = 0
+      end
       
+      def start
         # Ante up
         @ante = @controller.request_ante
         ante_message = "Ante received:\r\n"
@@ -147,7 +122,7 @@ module TDA
         leader = @ante.index ante_leader
         until gambit_ends
           @controller.broadcast "Round #{@rounds.length+1}"
-          @rounds << Round.new(self, leader)
+          @rounds << Round.new(self, leader).start
           leader = @rounds.last.highest_card
           @controller.broadcast "#{@controller.players[leader].name} leads the next round."
         end
@@ -163,6 +138,8 @@ module TDA
           player.flight.each { |card| @controller.deck.discard card }
           player.draws_2_cards
         }
+
+        self
       end
 
       def gambit_ends
@@ -179,15 +156,22 @@ module TDA
           @turn_order = (0..@gambit.controller.players.length-1).to_a
           @turn_order.unshift @turn_order.pop until @turn_order.first == leader
 
+        end
+
+        def start
           @turn_order.each { |index|
             player = @gambit.controller.players[index]
             player.enqueue_message("Play a card!\r\n#{player.hand}")
             @cards_played << player.add_to_flight
-            if @cards_played.length == 1 || @cards_played[-2].strength > @cards_played.last.strength
+            @gambit.controller.log @cards_played
+            if (@cards_played.length == 1 ||
+                @cards_played[-2].strength > @cards_played.last.strength)
               @cards_played.last.trigger(@gambit.controller)
               @gambit.controller.broadcast "Power triggers."
             end
           }
+
+          self
         end
 
         def highest_card
@@ -208,9 +192,9 @@ module TDA
   end
 end
 
-server = TDA::TDAServer.new.start
+game = TDA::Game.new
 
 loop do
-  server.begin_game if server.players.length == 3
-  break if server.stopped?
+  game.begin if game.players.length == 3
+  break if game.stopped?
 end
