@@ -3,7 +3,7 @@ module TDA
   class Deck < Array
     def initialize
       @discards = []
-      TDA.load_cards(self)
+      Deck.load(self)
       reshuffle
     end
 
@@ -37,25 +37,25 @@ module TDA
     def discard(card)
       @discards << card
     end
-  end
 
-  def TDA.load_cards(deck)
-    # Add one of each non-dragon card.
-    TDA::Card.constants.each_with_index { |name, index|
-      card = TDA::Card.const_get(name).new unless (name == "Card" || name[-6..-1]== "Dragon")
-      deck << card if card && (card.mortal? || card.dragon_god? || card.undead_dragon?)
-    }
+    def self.load(deck)
+      # Add one of each non-dragon card.
+      TDA::Card.constants.each_with_index { |name, index|
+        card = TDA::Card.const_get(name).new unless (name == "Card" || name[-6..-1]== "Dragon")
+        deck << card if card && (card.mortal? || card.dragon_god? || card.undead_dragon?)
+      }
 
-    [1, 2, 3, 5,  7,  9].each { |str| deck << TDA::Card::BlackDragon.new(str)  }
-    [1, 2, 4, 7,  9, 11].each { |str| deck << TDA::Card::BlueDragon.new(str)   }
-    [1, 2, 4, 5,  7,  9].each { |str| deck << TDA::Card::BrassDragon.new(str)  }
-    [1, 3, 6, 7,  9, 11].each { |str| deck << TDA::Card::BronzeDragon.new(str) }
-    [1, 3, 5, 7,  8, 10].each { |str| deck << TDA::Card::CopperDragon.new(str) }
-    [2, 4, 6, 9, 11, 13].each { |str| deck << TDA::Card::GoldDragon.new(str)   }
-    [1, 2, 4, 6,  8, 10].each { |str| deck << TDA::Card::GreenDragon.new(str)  }
-    [2, 3, 5, 8, 10, 12].each { |str| deck << TDA::Card::RedDragon.new(str)    }
-    [2, 3, 6, 8, 10, 12].each { |str| deck << TDA::Card::SilverDragon.new(str) }
-    [1, 2, 3, 4,  6,  8].each { |str| deck << TDA::Card::WhiteDragon.new(str)  }
+      [1, 2, 3, 5,  7,  9].each { |str| deck << TDA::Card::BlackDragon.new(str)  }
+      [1, 2, 4, 7,  9, 11].each { |str| deck << TDA::Card::BlueDragon.new(str)   }
+      [1, 2, 4, 5,  7,  9].each { |str| deck << TDA::Card::BrassDragon.new(str)  }
+      [1, 3, 6, 7,  9, 11].each { |str| deck << TDA::Card::BronzeDragon.new(str) }
+      [1, 3, 5, 7,  8, 10].each { |str| deck << TDA::Card::CopperDragon.new(str) }
+      [2, 4, 6, 9, 11, 13].each { |str| deck << TDA::Card::GoldDragon.new(str)   }
+      [1, 2, 4, 6,  8, 10].each { |str| deck << TDA::Card::GreenDragon.new(str)  }
+      [2, 3, 5, 8, 10, 12].each { |str| deck << TDA::Card::RedDragon.new(str)    }
+      [2, 3, 6, 8, 10, 12].each { |str| deck << TDA::Card::SilverDragon.new(str) }
+      [1, 2, 3, 4,  6,  8].each { |str| deck << TDA::Card::WhiteDragon.new(str)  }
+    end
   end
 
   module Card
