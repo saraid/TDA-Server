@@ -15,16 +15,13 @@ module TDA
       @server.start
     end
 
-    def log(msg)
-      @server.log msg
+    def method_missing(id, *args, &block)
+      return @server.send(id, *args, &block) if @server.respond_to? id
+      super
     end
 
     def debug(msg)
       log("[DEBUG] #{msg}")
-    end
-
-    def stopped?
-      @server.stopped?
     end
 
     #
