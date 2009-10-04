@@ -29,6 +29,21 @@ module TDA
         self.length == 3 && self.all? { |card| card.type == self.first.type }
       end
       def color_flight? ; type_flight? ; end
+
+      def include_special?(properties)
+        self.any? { |card| card.test_properties(properties) }
+      end
+
+      def count(condition)
+        subset = self.select { |card| card.send(:"#{condition}?") }
+        subset.length
+      end
+
+      def method_missing(id, *args, &block)
+        return include_special?($1)  if id.to_s =~ /^include_(\w+)?$/
+        return count($1.to_s[0..-1]) if id.to_s =~ /^(\w+)s$/
+        super
+      end
     end
     
     attr_accessor :name, :hand, :flight

@@ -48,6 +48,42 @@ module TDA
     end
     
     #
+    # Powers API
+    #
+
+    class API
+      def initialize(game)
+        @game = game
+        @players = @game.players
+      end
+
+      def strongest_flight
+        @players.max? { |a, b| a.flight.strength <=> b.flight.strength }
+      end
+
+      def most_cards
+        @players.max? { |a, b| a.hand.length <=> b.hand.length }
+      end
+
+      def has_in_flight? player, condition
+        player.flight.send( :"include_#{condition}?")
+      end
+
+      def player_to_left_of player
+        @players[@players.index-1]
+      end
+      
+      def weakest_flight_wins!
+        class << @game.current_gambit
+          def determine_winner
+            @controller.players.min { |a, b| a.flight.strength <=> b.flight.strength }
+          end
+        end
+      end
+
+    end
+
+    #
     # Game Control
     #
     
@@ -55,7 +91,7 @@ module TDA
     end
 
     @game_begun = false
-    attr_reader :deck
+    attr_reader :deck, :api
     def begin
       return if @game_begun
       if @players.length < 1
@@ -63,6 +99,7 @@ module TDA
       end
       broadcast "Game begun!"
       
+      @api = API.new(self)
       @history = History.new
       @deck = TDA::Deck.new
       all_players { |player| 
@@ -71,7 +108,15 @@ module TDA
       }
       
       @game_begun = true
-      @history << @current_gambit = Gambit.new(self).start until @players.any? { |player| player.hoard <= 0 }
+      until game_ends
+        @current_gambit = Gambit.new(self)
+        @history << @current_gambit.start
+      end
+      @game_begun = false
+    end
+
+    def game_ends
+      @players.any? { |player| player.hoard <= 0 }
     end
 
     def request_ante
@@ -92,7 +137,7 @@ module TDA
         @controller = controller
         @pot = 0
       end
-      
+
       def start
         # Ante up
         @ante = @controller.request_ante
@@ -125,7 +170,7 @@ module TDA
         end
 
         # Determine winner
-        @winner = @controller.players.max { |a, b| a.flight.strength <=> b.flight.strength }
+        @winner = determine_winner
         @controller.broadcast "#{@winner.name} wins the gambit."
 
         # End Gambit
@@ -137,6 +182,10 @@ module TDA
         }
 
         self
+      end
+
+      def determine_winner
+        @controller.players.max { |a, b| a.flight.strength <=> b.flight.strength }
       end
 
       def gambit_ends
@@ -163,7 +212,7 @@ module TDA
             @gambit.controller.log @cards_played
             if (@cards_played.length == 1 ||
                 @cards_played[-2].strength > @cards_played.last.strength)
-              @cards_played.last.trigger(@gambit.controller)
+              @cards_played.last.trigger(@gambit.controller.api)
               @gambit.controller.broadcast "Power triggers."
             end
           }

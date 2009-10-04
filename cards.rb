@@ -20,7 +20,7 @@ module TDA
       cards
     end
 
-    def reshuffle(pristine = false)
+    def reshuffle
       @discards.each { |card| self << card }
       self.size.times do |src|
         dest = rand(self.size).round
@@ -70,11 +70,11 @@ module TDA
         @strength = strength
         @properties = properties.to_s.split('_')
         @properties.reject! { |prop| KNOWN_PROPERTIES.include? prop }
-        @power = power || Proc.new { |controller| }
+        @power = power || Proc.new { |api| }
       end
       
-      def trigger(controller)
-        @power.call(controller)
+      def trigger(api)
+        @power.call(api)
       end
 
       def to_s
@@ -83,11 +83,11 @@ module TDA
       end
 
       def test_properties(properties)
-        properties.to_s[0...-1].split('_').all? { |prop| @properties.include? prop }
+        properties.split('_').all? { |prop| @properties.include? prop }
       end
 
       def method_missing(id, *args, &block)
-        return test_properties(id) if id.to_s =~ /^\w+\?$/
+        return test_properties(id.to_s[0...-1]) if id.to_s =~ /^\w+\?$/
         super
       end
     end
@@ -148,7 +148,7 @@ module TDA
 
     class Druid < Card
       def initialize
-        super(6, :mortal)
+        super(6, :mortal, Proc.new { |api| api.weakest_flight_wins! )
       end
     end
 
