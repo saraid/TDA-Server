@@ -28,7 +28,7 @@ module TDA
       def type_flight?
         self.length == 3 && self.all? { |card| card.type == self.first.type }
       end
-      def color_flight? ; type_flight? ; end
+      alias :color_flight? :type_flight?
 
       def include_special?(properties)
         self.any? { |card| card.test_properties(properties) }
