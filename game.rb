@@ -81,6 +81,19 @@ module TDA
         end
       end
 
+      def pay_gold(issuer, amt, destination)
+        issuer = case issuer
+        when 'current_player'
+          @game.current_player
+        end
+
+        amt = amt.to_i
+
+        destination = if ['stakes', 'pot'].include? destination
+          @game.current_gambit.add_gold_to_pot receiver.pay_gold(amt)
+        end
+      end
+
       def take_gold(receiver, amt, source)
         receiver = case receiver
         when 'current_player'
@@ -95,6 +108,7 @@ module TDA
       end
 
       def method_missing(id, *args, &block)
+        return pay_gold($1, $2, $3) if id.to_s =~ /^(\w+)_pays_(\d+)_gold_to_(\w+)$/
         return take_gold($1, $2, $3) if id.to_s =~ /^(\w+)_takes_(\d+)_gold_from_(\w+)$/
         super
       end

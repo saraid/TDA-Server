@@ -150,7 +150,10 @@ module TDA
 
     class Druid < Card
       def initialize
-        super(6, :mortal, Proc.new { |api| api.weakest_flight_wins! })
+        super(6, :mortal, Proc.new { |api| 
+          api.current_player_pays_1_gold_to_stakes
+          api.weakest_flight_wins!
+        })
       end
     end
 

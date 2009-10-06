@@ -119,8 +119,17 @@ module TDA
     end
     
     def pay_gold(amt)
-      @gold = @gold - amt
-      @controller.broadcast "#{self.name} pays #{amt} gold to the pot. (Hoard: #{@gold})"
+      unless @gold < amt
+        @gold = @gold - amt
+        @controller.broadcast "#{self.name} pays #{amt} gold to the pot. (Hoard: #{@gold})"
+        return amt
+      end
+
+      remainder = @gold
+      @debt = amt - @gold
+      @gold = 0
+      @controller.broadcast "#{self.name} pays all their gold to the pot. (Debt: #{@debt})"
+      remainder
     end
     
     def method_missing(id, *args, &block)
