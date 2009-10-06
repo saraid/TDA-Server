@@ -87,7 +87,7 @@ module TDA
       end
 
       def method_missing(id, *args, &block)
-        return test_properties(id.to_s[0...-1]) if id.to_s =~ /^\w+\?$/
+        return test_properties($1) if id.to_s =~ /^(\w+)\?$/
         super
       end
     end
