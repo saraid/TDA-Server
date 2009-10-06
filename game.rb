@@ -70,7 +70,7 @@ module TDA
       end
 
       def player_to_left_of player
-        @players[@players.index-1]
+        @players[@players.index(player)-1]
       end
       
       def weakest_flight_wins!
@@ -79,6 +79,24 @@ module TDA
             @controller.players.min { |a, b| a.flight.strength <=> b.flight.strength }
           end
         end
+      end
+
+      def take_gold(receiver, amt, source)
+        receiver = case receiver
+        when 'current_player'
+          @game.current_player
+        end
+
+        amt = amt.to_i
+
+        source = if ['stakes', 'pot'].include? source
+          receiver.receive_gold @game.current_gambit.take_gold_from_pot(amt)
+        end
+      end
+
+      def method_missing(id, *args, &block)
+        return take_gold($1, $2, $3) if id.to_s =~ /^(\w+)_takes_(\d+)_gold_from_(\w+)$/
+        super
       end
 
     end
@@ -117,6 +135,11 @@ module TDA
 
     def game_ends
       @players.any? { |player| player.hoard <= 0 }
+    end
+
+    def current_player
+      return nil unless @game_begun
+      @current_gambit.current_round.current_player
     end
 
     def request_ante
@@ -164,7 +187,8 @@ module TDA
         leader = @ante.index ante_leader
         until gambit_ends
           @controller.broadcast "Round #{@rounds.length+1}"
-          @rounds << Round.new(self, leader).start
+          @current_round = Round.new(self, leader)
+          @rounds << @current_round.start
           leader = @rounds.last.highest_card
           @controller.broadcast "#{@controller.players[leader].name} leads the next round."
         end
@@ -216,6 +240,7 @@ module TDA
         @pot == 0
       end
       
+      attr_reader :current_round
       class Round
         def initialize(gambit, leader)
           @gambit = gambit
@@ -227,16 +252,17 @@ module TDA
 
         end
 
+        attr_reader :current_player
         def start
           @turn_order.each { |index|
-            player = @gambit.controller.players[index]
-            player.enqueue_message("Play a card!\r\n#{player.hand}")
-            @cards_played << player.add_to_flight
+            @current_player = @gambit.controller.players[index]
+            @current_player.enqueue_message("Play a card!\r\n#{@current_player.hand}")
+            @cards_played << @current_player.add_to_flight
             @gambit.controller.log @cards_played
             if (@cards_played.length == 1 ||
                 @cards_played[-2].strength > @cards_played.last.strength)
-              @cards_played.last.trigger(@gambit.controller.api)
               @gambit.controller.broadcast "Power triggers."
+              @cards_played.last.trigger(@gambit.controller.api)
             end
           }
 

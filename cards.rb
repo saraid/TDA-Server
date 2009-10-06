@@ -106,7 +106,9 @@ module TDA
 
     class BlackDragon < Card
       def initialize(strength)
-        super(strength, :evil_dragon)
+        super(strength, :evil_dragon, Proc.new { |api|
+          api.current_player_takes_2_gold_from_stakes
+        })
       end
     end
 
@@ -148,7 +150,7 @@ module TDA
 
     class Druid < Card
       def initialize
-        super(6, :mortal, Proc.new { |api| api.weakest_flight_wins! )
+        super(6, :mortal, Proc.new { |api| api.weakest_flight_wins! })
       end
     end
 
