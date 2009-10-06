@@ -184,13 +184,36 @@ module TDA
         self
       end
 
+      # General Gambit Control
+      #
       def determine_winner
         @controller.players.max { |a, b| a.flight.strength <=> b.flight.strength }
       end
 
       def gambit_ends
-        @rounds.length >= 3 || @pot == 0
+        @rounds.length >= 3 || empty_pot?
         # TODO: Lots of other gambit_end conditions.
+      end
+
+      # Methods for Pot
+      #
+      def add_gold_to_pot(amt)
+        @pot = @pot + amt
+      end
+
+      def take_gold_from_pot(amt)
+        unless @pot < amt
+          @pot = @pot - amt
+          return amt
+        end
+
+        # Oh no, where me Lucky Charms!
+        @pot = 0
+        return @pot - amt 
+      end
+
+      def empty_pot?
+        @pot == 0
       end
       
       class Round
