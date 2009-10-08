@@ -9,8 +9,8 @@ module TDA
       # Testing code
       # Restack the deck so desired card-to-test shows up.
       #
-      self.unshift self.detect {|card| card.class.to_s.include?"Thief" }
-      self.uniq!
+      #self.unshift self.detect {|card| card.class.to_s.include?"Thief" }
+      #self.uniq!
     end
 
     def draw(amt)
