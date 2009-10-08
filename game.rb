@@ -167,7 +167,7 @@ module TDA
     end
 
     def request_ante
-      all_players { |player| player.enqueue_message "Select ante from hand (#{player.hand.length}):\r\n#{player.hand}" }
+      all_players { |player| player.show_hand_with_instruction "Select ante from hand" }
 
       ante = Array.new(@players.length)
       all_players_with_index { |player, index|
