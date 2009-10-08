@@ -91,8 +91,6 @@ module TDA
           @game.current_player
         end
 
-        amt = amt.to_i
-
         destination = if ['stakes', 'pot'].include? destination
           @game.current_gambit.add_gold_to_pot receiver.pay_gold(amt)
         end
@@ -103,8 +101,6 @@ module TDA
         when 'current_player'
           @game.current_player
         end
-
-        amt = amt.to_i
 
         source = if ['stakes', 'pot'].include? source
           receiver.receive_gold @game.current_gambit.take_gold_from_pot(amt)
@@ -122,8 +118,8 @@ module TDA
 
       def method_missing(id, *args, &block)
         return discard_cards($1, $2.to_i) if id.to_s =~ /^(\w+)_discards_(\d+)/
-        return pay_gold($1, $2, $3) if id.to_s =~ /^(\w+)_pays_(\d+)_gold_to_(\w+)$/
-        return take_gold($1, $2, $3) if id.to_s =~ /^(\w+)_takes_(\d+)_gold_from_(\w+)$/
+        return pay_gold($1, $2.to_i, $3) if id.to_s =~ /^(\w+)_pays_(\d+)_gold_to_(\w+)$/
+        return take_gold($1, $2.to_i, $3) if id.to_s =~ /^(\w+)_takes_(\d+)_gold_from_(\w+)$/
         super
       end
 
