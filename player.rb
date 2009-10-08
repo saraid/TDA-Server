@@ -40,7 +40,7 @@ module TDA
       end
 
       def method_missing(id, *args, &block)
-        return include_special?($1)  if id.to_s =~ /^include_(\w+)?$/
+        return include_special?($1)  if id.to_s =~ /^include_(\w+)\?$/
         return count($1.to_s[0..-1]) if id.to_s =~ /^(\w+)s$/
         super
       end

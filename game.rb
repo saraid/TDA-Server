@@ -65,12 +65,12 @@ module TDA
         @players.max? { |a, b| a.hand.length <=> b.hand.length }
       end
 
-      def has_in_flight? player, condition
-        player.flight.send( :"include_#{condition}?")
-      end
-
       def current_player
         @game.current_player
+      end
+
+      def players_with_flight_of condition
+        @players.select { |player| player.flight.send(:"include_#{condition}?") }
       end
 
       def player_to_left_of player
@@ -86,10 +86,7 @@ module TDA
       end
 
       def pay_gold(issuer, amt, destination)
-        issuer = case issuer
-        when 'current_player'
-          @game.current_player
-        end
+        issuer = self.send(issuer.to_sym)
 
         destination = if ['stakes', 'pot'].include? destination
           @game.current_gambit.add_gold_to_pot receiver.pay_gold(amt)
@@ -97,14 +94,16 @@ module TDA
       end
 
       def take_gold(receiver, amt, source)
-        receiver = case receiver
-        when 'current_player'
-          @game.current_player
-        end
+        receiver = self.send(issuer.to_sym)
 
         source = if ['stakes', 'pot'].include? source
           receiver.receive_gold @game.current_gambit.take_gold_from_pot(amt)
         end
+      end
+
+      def draw_cards(players, amt)
+        players = self.send(players.to_sym)
+        players.each { |player| player.draw_card amt }
       end
 
       def discard_cards(player, amt)
@@ -118,8 +117,11 @@ module TDA
 
       def method_missing(id, *args, &block)
         return discard_cards($1, $2.to_i) if id.to_s =~ /^(\w+)_discards_(\d+)/
+        return draw_cards($1, $2.to_i) if id.to_s =~ /^(\w+?)_draws_(\d+)/
         return pay_gold($1, $2.to_i, $3) if id.to_s =~ /^(\w+)_pays_(\d+)_gold_to_(\w+)$/
         return take_gold($1, $2.to_i, $3) if id.to_s =~ /^(\w+)_takes_(\d+)_gold_from_(\w+)$/
+
+        return players_with_flight_of($1) if id.to_s =~ /^players_with_flight_of_(\w+)$/
         super
       end
 
