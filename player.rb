@@ -58,6 +58,10 @@ module TDA
       @message_queue << message
     end
 
+    def show_hand_with_instruction message
+      enqueue_message "#{message} (#{@hand.length}):\r\n#{@hand}"
+    end
+
     def dequeue_message
       @message_queue.shift
     end

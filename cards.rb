@@ -5,6 +5,12 @@ module TDA
       @discards = []
       Deck.load(self)
       reshuffle
+
+      # Testing code
+      # Restack the deck so desired card-to-test shows up.
+      #
+      self.unshift self.detect {|card| card.class.to_s.include?"Thief" }
+      self.uniq!
     end
 
     def draw(amt)
@@ -201,7 +207,10 @@ module TDA
 
     class Thief < Card
       def initialize
-        super(7, :mortal)
+        super(7, :mortal, Proc.new { |api|
+          api.current_player_takes_7_gold_from_stakes
+          api.current_player_discards_1
+        })
       end
     end
 

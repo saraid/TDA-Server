@@ -69,6 +69,10 @@ module TDA
         player.flight.send( :"include_#{condition}?")
       end
 
+      def current_player
+        @game.current_player
+      end
+
       def player_to_left_of player
         @players[@players.index(player)-1]
       end
@@ -107,7 +111,17 @@ module TDA
         end
       end
 
+      def discard_cards(player, amt)
+        player = self.send(player.to_sym)
+        amt = player.hand.length unless amt < player.hand.length
+        amt.times do |i|
+          player.show_hand_with_instruction "Select a card to discard"
+          @game.deck.discard player.select_card(player.receive_input.to_i)
+        end
+      end
+
       def method_missing(id, *args, &block)
+        return discard_cards($1, $2.to_i) if id.to_s =~ /^(\w+)_discards_(\d+)/
         return pay_gold($1, $2, $3) if id.to_s =~ /^(\w+)_pays_(\d+)_gold_to_(\w+)$/
         return take_gold($1, $2, $3) if id.to_s =~ /^(\w+)_takes_(\d+)_gold_from_(\w+)$/
         super
