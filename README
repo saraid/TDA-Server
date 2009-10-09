@@ -29,6 +29,29 @@ Task List:
   - Discard a card.
 - Debt management.
 - Special flights.
-- Handle empty pot with gambit end. (Make a Pot class?)
+- Handle empty pot with gambit end.
 - Handle empty hand by buying cards.
 - Fix the way ante ties are handled.
+
+Remaining Powers:
+Archmage, Dracolich, Tiamat - copy power
+Bahamut, Tiamat - dragon god power (not triggered)
+BlueDragon, BrassDragon, GreenDragon - choice
+BronzeDragon - take from ante
+Dragonslayer - discard from flight
+Fool - flight strength compare
+Priest - set leader
+Princess - retrigger
+RedDragon - draw random from hand
+
+Already capable:
+Bahamut, Fool, Princess, RedDragon
+
+Know how to build functionality:
+BlueDragon, BrassDragon, GreenDragon, BronzeDragon, Priest
+
+Have ideas for:
+Dragonslayer
+
+Still thinking about:
+Archmage, Dracolich, Tiamat

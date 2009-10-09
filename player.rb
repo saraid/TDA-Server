@@ -114,11 +114,12 @@ module TDA
       @gold = @gold + amt
       @controller.broadcast "#{self.name} receives #{amt} gold. (Hoard: #{@gold})"
     end
+    alias :<< :receive_gold
     
     def pay_gold(amt)
       unless @gold < amt
         @gold = @gold - amt
-        @controller.broadcast "#{self.name} pays #{amt} gold to the pot. (Hoard: #{@gold})"
+        @controller.broadcast "#{self.name} pays #{amt} gold. (Hoard: #{@gold})"
         return amt
       end
 
@@ -128,6 +129,7 @@ module TDA
       @controller.broadcast "#{self.name} pays all their gold to the pot. (Debt: #{@debt})"
       remainder
     end
+    alias :>> :pay_gold
     
     def method_missing(id, *args, &block)
       return receive_gold($1.to_i) if id.to_s =~ /receives_(\d+)_gold/

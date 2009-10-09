@@ -58,11 +58,11 @@ module TDA
       end
 
       def strongest_flight
-        @players.max? { |a, b| a.flight.strength <=> b.flight.strength }
+        @players.max { |a, b| a.flight.strength <=> b.flight.strength }
       end
 
       def most_cards
-        @players.max? { |a, b| a.hand.length <=> b.hand.length }
+        @players.max { |a, b| a.hand.length <=> b.hand.length }
       end
 
       def deck
@@ -84,6 +84,11 @@ module TDA
       def player_to_left_of player
         @players[@players.index(player)-1]
       end
+
+      def pot
+        @game.current_gambit.pot
+      end
+      alias :stakes :pot
       
       def weakest_flight_wins!
         class << @game.current_gambit
@@ -95,18 +100,12 @@ module TDA
 
       def pay_gold(issuer, amt, destination)
         issuer = self.send(issuer.to_sym)
-
-        destination = if ['stakes', 'pot'].include? destination
-          @game.current_gambit.add_gold_to_pot receiver.pay_gold(amt)
-        end
+        self.send(destination.to_sym) << issuer.pay_gold(amt)
       end
 
       def take_gold(receiver, amt, source)
         receiver = self.send(receiver.to_sym)
-
-        source = if ['stakes', 'pot'].include? source
-          receiver.receive_gold @game.current_gambit.take_gold_from_pot(amt)
-        end
+        receiver.receive_gold(self.send(source.to_sym) >> amt)
       end
 
       def draw_cards(players, amt)
@@ -123,7 +122,24 @@ module TDA
         end
       end
 
+      def give_cards(from, amt, special, to)
+        player = self.send(from.to_sym)
+        to = self.send(to.to_sym)
+        amt = player.hand.length unless amt < player.hand.length
+        amt.times do |i|
+          card_index = rand(player.hand.length-1) if special.include? "random"
+          unless card_index
+            player.show_hand_with_instruction "Select a card to give"
+            card_index = player.receive_input.to_i
+          end
+          to.hand << player.select_card(card_index)
+        end
+
+        @game.broadcast "#{player.name} gives #{amt} cards to #{to.name}"
+      end
+
       def method_missing(id, *args, &block)
+        return give_cards($1, $2.to_i, $3, $4) if id.to_s =~ /^(\w+)_gives_(\d+)(\w+)?_card_to_(\w+)$/
         return discard_cards($1, $2.to_i) if id.to_s =~ /^(\w+)_discards_(\d+)/
         return draw_cards($1, $2.to_i) if id.to_s =~ /^(\w+?)_draws_(\d+)/
         return pay_gold($1, $2.to_i, $3) if id.to_s =~ /^(\w+)_pays_(\d+)_gold_to_(\w+)$/
@@ -180,6 +196,43 @@ module TDA
     class Ante < TDA::Card::SetOfCards
     end
 
+    class Pot
+      def initialize
+        @value = 0
+      end
+
+      def name
+        "the pot"
+      end
+
+      def <<(amt)
+        @value = @value + amt
+      end
+
+      def >>(amt)
+        unless @value < amt
+          @value = @value - amt
+          return amt
+        end
+
+        # Oh no, where me Lucky Charms!
+        @value = 0
+        return @value - amt 
+      end
+
+      def empty?
+        @value == 0
+      end
+
+      def to_s
+        @value.to_s
+      end
+
+      def method_missing(id, *args, &block)
+        @value.send(id, *args, &block)
+      end
+    end
+
     def request_ante
       all_players { |player| player.show_hand_with_instruction "Select ante from hand" }
 
@@ -196,7 +249,7 @@ module TDA
       attr_reader :controller, :pot, :turn_order, :leader, :ante
       def initialize(controller)
         @controller = controller
-        @pot = 0
+        @pot = Pot.new
       end
 
       def start
@@ -216,7 +269,7 @@ module TDA
         # Feed the pot
         @controller.players.each { |player| 
           player.send :"pays_#{gold_to_pay}_gold" 
-          @pot = @pot + gold_to_pay
+          @pot << gold_to_pay
           player.start_flight
         }
         
@@ -253,31 +306,10 @@ module TDA
       end
 
       def gambit_ends
-        @rounds.length >= 3 || empty_pot?
+        @rounds.length >= 3 || @pot.empty?
         # TODO: Lots of other gambit_end conditions.
       end
 
-      # Methods for Pot
-      #
-      def add_gold_to_pot(amt)
-        @pot = @pot + amt
-      end
-
-      def take_gold_from_pot(amt)
-        unless @pot < amt
-          @pot = @pot - amt
-          return amt
-        end
-
-        # Oh no, where me Lucky Charms!
-        @pot = 0
-        return @pot - amt 
-      end
-
-      def empty_pot?
-        @pot == 0
-      end
-      
       attr_reader :current_round
       class Round
         def initialize(gambit, leader)

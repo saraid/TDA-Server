@@ -9,7 +9,7 @@ module TDA
       # Testing code
       # Restack the deck so desired card-to-test shows up.
       #
-      self.unshift self.detect {|card| card.class.to_s.include?"White" }
+      self.unshift self.detect {|card| card.class.to_s.include?"Red" }
       self.uniq!
     end
 
@@ -231,7 +231,10 @@ module TDA
 
     class RedDragon < Card
       def initialize(strength)
-        super(strength, :evil_dragon)
+        super(strength, :evil_dragon, Proc.new { |api|
+          api.strongest_flight_pays_1_gold_to_current_player
+          api.strongest_flight_gives_1_random_card_to_current_player
+        })
       end
     end
 
