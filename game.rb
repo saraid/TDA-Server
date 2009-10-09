@@ -65,6 +65,14 @@ module TDA
         @players.max? { |a, b| a.hand.length <=> b.hand.length }
       end
 
+      def deck
+        @game.deck
+      end
+
+      def ante
+        @game.current_gambit.ante
+      end
+
       def current_player
         @game.current_player
       end
@@ -94,7 +102,7 @@ module TDA
       end
 
       def take_gold(receiver, amt, source)
-        receiver = self.send(issuer.to_sym)
+        receiver = self.send(receiver.to_sym)
 
         source = if ['stakes', 'pot'].include? source
           receiver.receive_gold @game.current_gambit.take_gold_from_pot(amt)
@@ -151,6 +159,7 @@ module TDA
         player.draws_6_cards
       }
       
+      @deck.stack_deck
       @game_begun = true
       until game_ends
         @current_gambit = Gambit.new(self)
@@ -181,7 +190,7 @@ module TDA
     attr_reader :current_gambit
     class Gambit
       
-      attr_reader :controller, :pot, :turn_order, :leader
+      attr_reader :controller, :pot, :turn_order, :leader, :ante
       def initialize(controller)
         @controller = controller
         @pot = 0
@@ -283,7 +292,7 @@ module TDA
           @turn_order.each { |index|
             @current_player = @gambit.controller.players[index]
             @current_player.enqueue_message("Play a card!\r\n#{@current_player.hand}")
-            @cards_played << @current_player.add_to_flight
+            @cards_played << @current_player.add_to_flight(@current_player.receive_input.to_i)
             @gambit.controller.log @cards_played
             if (@cards_played.length == 1 ||
                 @cards_played[-2].strength > @cards_played.last.strength)
