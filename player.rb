@@ -92,8 +92,9 @@ module TDA
       @flight = Flight.new
     end
 
-    def add_to_flight
-      @flight << select_card(receive_input.to_i)
+    def add_to_flight(card)
+      card = select_card(card) if card.is_a? Fixnum
+      @flight << card
       @controller.broadcast "#{@name} plays #{@flight.last}. (Flight: #{@flight.join(', ')})"
       @flight.last
     end
