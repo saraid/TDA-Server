@@ -31,6 +31,10 @@ module TDA
       cards
     end
 
+    def draw_first
+      self.draw(1).first
+    end
+
     def reshuffle
       @discards.each { |card| self << card }
       self.size.times do |src|
@@ -52,7 +56,7 @@ module TDA
     def self.load(deck)
       # Add one of each non-dragon card.
       TDA::Card.constants.each_with_index { |name, index|
-        card = TDA::Card.const_get(name).new unless (name == "Card" || name[-6..-1]== "Dragon")
+        card = TDA::Card.const_get(name).new unless (name == "Card" || name == "SetOfCards" || name[-6..-1]== "Dragon")
         deck << card if card && (card.mortal? || card.dragon_god? || card.undead_dragon?)
       }
 
@@ -70,6 +74,27 @@ module TDA
   end
 
   module Card
+    # Abstract Class
+    class SetOfCards < Array
+      def push(obj)
+        return nil unless obj.is_a? TDA::Card::Card
+        super
+      end
+
+      def <<(obj)
+        return nil unless obj.is_a? TDA::Card::Card
+        super
+      end
+
+      def to_s
+        set = ""
+        each_with_index { |card, index|
+          set << "#{"%2d" % index}. #{card}\r\n"
+        }
+        set
+      end
+    end
+
     class Card
       attr_reader :strength
 

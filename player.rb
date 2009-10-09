@@ -1,22 +1,14 @@
 module TDA
   class Player
-    class Hand < Array
+    class Hand < TDA::Card::SetOfCards
       MAX_LENGTH = 10
 
       def space
         MAX_LENGTH - self.length
       end
-
-      def to_s
-        hand = ""
-        each_with_index { |card, index|
-          hand << "#{"%2d" % index}. #{card}\r\n"
-        }
-        hand
-      end
     end
 
-    class Flight < Array
+    class Flight < TDA::Card::SetOfCards
       def strength
         self.inject(0) { |sum, card| sum + card.strength }
       end

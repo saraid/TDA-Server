@@ -177,10 +177,13 @@ module TDA
       @current_gambit.current_round.current_player
     end
 
+    class Ante < TDA::Card::SetOfCards
+    end
+
     def request_ante
       all_players { |player| player.show_hand_with_instruction "Select ante from hand" }
 
-      ante = Array.new(@players.length)
+      ante = Ante.new(@players.length)
       all_players_with_index { |player, index|
         ante[index] = player.select_card(player.receive_input.to_i)
       }
