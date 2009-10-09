@@ -9,9 +9,14 @@ module TDA
       # Testing code
       # Restack the deck so desired card-to-test shows up.
       #
-      #self.unshift self.detect {|card| card.class.to_s.include?"SilverDragon" }
-      #self.uniq!
+      self.unshift self.detect {|card| card.class.to_s.include?"Copper" }
+      self.uniq!
     end
+
+    #def stack_deck
+      #self.unshift self.detect {|card| card.class.to_s.include?"Silver" }
+      #self.uniq!
+    #end
 
     def draw(amt)
       cards = []
@@ -138,7 +143,11 @@ module TDA
 
     class CopperDragon < Card
       def initialize(strength)
-        super(strength, :good_dragon)
+        super(strength, :good_dragon, Proc.new { |api|
+          api.deck.discard api.current_player.flight.delete(self)
+          api.current_player.add_to_flight api.deck.draw(1).first
+          api.current_player.flight.last.trigger(api)
+        })
       end
     end
 
