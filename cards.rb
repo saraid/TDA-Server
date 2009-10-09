@@ -180,7 +180,9 @@ module TDA
 
     class GoldDragon < Card
       def initialize(strength)
-        super(strength, :good_dragon)
+        super(strength, :good_dragon, Proc.new { |api|
+          api.send(:"current_player_draws_#{api.current_player.flight.good_dragons}")
+        })
       end
     end
 

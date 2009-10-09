@@ -111,7 +111,7 @@ module TDA
 
       def draw_cards(players, amt)
         players = self.send(players.to_sym)
-        players.each { |player| player.draw_card amt }
+        Array(players).each { |player| player.draw_card amt }
       end
 
       def discard_cards(player, amt)
@@ -159,7 +159,7 @@ module TDA
         player.draws_6_cards
       }
       
-      @deck.stack_deck
+      #@deck.stack_deck
       @game_begun = true
       until game_ends
         @current_gambit = Gambit.new(self)
