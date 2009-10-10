@@ -102,6 +102,16 @@ module TDA
         end
       end
 
+      def current_player_leads_next_round!
+        index = @players.index self.current_player
+        (class << @game.current_gambit.current_round; self; end).class_eval do
+          define_method :highest_card do
+            @gambit.controller.log "player at #{index} is #{@gambit.controller.players[index]}"
+            index
+          end
+        end
+      end
+
       def pay_gold(issuer, amt, destination)
         issuer = self.send(issuer.to_sym) unless issuer.is_a? TDA::Player
         self.send(destination.to_sym) << issuer.pay_gold(amt)

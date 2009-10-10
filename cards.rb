@@ -9,7 +9,7 @@ module TDA
       # Testing code
       # Restack the deck so desired card-to-test shows up.
       #
-      self.unshift self.detect {|card| card.class.to_s.include?"Red" }
+      self.unshift self.detect {|card| card.class.to_s.include?"Priest" }
       self.uniq!
     end
 
@@ -229,7 +229,9 @@ module TDA
 
     class Priest < Card
       def initialize
-        super(5, :mortal)
+        super(5, :mortal, Proc.new { |api|
+          api.current_player_leads_next_round!
+        })
       end
     end
 
