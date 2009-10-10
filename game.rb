@@ -103,12 +103,12 @@ module TDA
       end
 
       def pay_gold(issuer, amt, destination)
-        issuer = self.send(issuer.to_sym)
+        issuer = self.send(issuer.to_sym) unless issuer.is_a? TDA::Player
         self.send(destination.to_sym) << issuer.pay_gold(amt)
       end
 
       def take_gold(receiver, amt, source)
-        receiver = self.send(receiver.to_sym)
+        receiver = self.send(receiver.to_sym) unless receiver.is_a? TDA::Player
         receiver.receive_gold(self.send(source.to_sym) >> amt)
       end
 

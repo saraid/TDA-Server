@@ -136,7 +136,13 @@ module TDA
 
     class Bahamut < Card
       def initialize
-        super(13, :good_dragon_god)
+        super(13, :good_dragon_god, Proc.new { |api|
+          players = api.players_with_flight_of_good_dragon & api.players_with_flight_of_evil_dragon
+          players.delete api.current_player
+          players.each { |player|
+            api.pay_gold(player, 10, 'current_player')
+          }
+        })
       end
     end
 
