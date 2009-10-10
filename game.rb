@@ -77,6 +77,10 @@ module TDA
         @game.current_player
       end
 
+      def players_with_flights_stronger_than strength
+        @players.select { |player| player.flight.strength > strength }
+      end
+
       def players_with_flight_of condition
         @players.select { |player| player.flight.send(:"include_#{condition}?") }
       end

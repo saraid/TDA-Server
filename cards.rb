@@ -199,7 +199,11 @@ module TDA
 
     class Fool < Card
       def initialize
-        super(3, :mortal)
+        super(3, :mortal, Proc.new { |api|
+          api.current_player_pays_1_gold_to_stakes
+          players = api.players_with_flights_stronger_than api.current_player.flight.strength
+          api.send(:"current_player_draws_#{players.length}")
+        })
       end
     end
 
@@ -225,7 +229,11 @@ module TDA
 
     class Princess < Card
       def initialize
-        super(4, :mortal)
+        super(4, :mortal, Proc.new { |api|
+          api.current_player_pays_1_gold_to_stakes
+          cards = api.current_player.flight.select { |card| card.good_dragon? }
+          cards.each { |card| card.trigger(api) }
+        })
       end
     end
 
