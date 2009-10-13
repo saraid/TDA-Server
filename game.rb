@@ -344,7 +344,7 @@ module TDA
             @cards_played << @current_player.add_to_flight(@current_player.receive_input.to_i)
             @gambit.controller.log @cards_played
             if (@cards_played.length == 1 ||
-                @cards_played[-2].strength > @cards_played.last.strength)
+                @cards_played[-2].strength >= @cards_played.last.strength)
               @gambit.controller.broadcast "Power triggers."
               @cards_played.last.trigger(@gambit.controller.api)
             end
