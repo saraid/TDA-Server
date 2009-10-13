@@ -55,6 +55,7 @@ module TDA
 
     def self.load(deck)
       # Add one of each non-dragon card.
+      # TODO: This metaprogramming is stupid. Just make a proper, readable list.
       TDA::Card.constants.each_with_index { |name, index|
         card = TDA::Card.const_get(name).new unless (name == "Card" || name == "SetOfCards" || name[-6..-1]== "Dragon")
         deck << card if card && (card.mortal? || card.dragon_god? || card.undead_dragon?)

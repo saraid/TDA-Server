@@ -1,10 +1,6 @@
 Rules:
 http://www.wizards.com/dnd/files/ThreeAnte_rulebook.zip
 
-TODO:
-Special flights
-Triggered Powers
-
 Stuff that's done:
 1. Entering the game. (Fail: No way to start the game arbitrarily.)
 2. Moving gold between players and the pot.
@@ -19,14 +15,6 @@ I also need to add chat capability (meh) and status reports in response to queri
 Task List:
 
 - Finish building powers.
-  - Take card from hand. Take card from ante.
-  - Take card from hand or take money from hoard.
-  - Copy power.
-  - Copper Dragon. Dragon gods.
-  - Opponents pay money to stakes.
-  - Dragonslayer.
-  - Set leader of next round.
-  - Discard a card.
 - Debt management.
 - Special flights.
 - Handle empty pot with gambit end.
@@ -34,12 +22,10 @@ Task List:
 - Fix the way ante ties are handled.
 
 Remaining Powers:
-Archmage, Dracolich, Tiamat - copy power
-Bahamut, Tiamat - dragon god power (not triggered)
+Archmage, Dracolich - copy power
 BlueDragon, BrassDragon, GreenDragon - choice
 BronzeDragon - take from ante
 Dragonslayer - discard from flight
-Priest - set leader
 
 Know how to build functionality:
 BlueDragon, BrassDragon, GreenDragon, BronzeDragon
@@ -48,4 +34,9 @@ Have ideas for:
 Dragonslayer
 
 Still thinking about:
-Archmage, Dracolich, Tiamat
+Archmage, Dracolich
+
+===
+
+BronzeDragon: when 3+ lowest strength ante, you get a choice.
+DragonGod "powers" trigger when checking color flight and gambit when. How do I mix this in?
