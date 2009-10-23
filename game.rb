@@ -208,6 +208,9 @@ module TDA
     end
 
     class Ante < TDA::Card::SetOfCards
+      def finalize!
+        self.sort! { |a, b| b.strength <=> a.strength }
+      end
     end
 
     class Pot
@@ -274,8 +277,10 @@ module TDA
           ante_message << " #{player.name} played #{@ante[index]}\r\n"
         }
         @controller.broadcast ante_message
+
         # TODO: Ante matches.
-        ante_leader = @ante.max { |a, b| a.strength <=> b.strength }
+        @ante.finalize!
+        ante_leader = @ante.first
         gold_to_pay = ante_leader.strength
         @leader = @controller.players[ @ante.index(ante_leader) ]
         @controller.broadcast "#{@leader.name} is leader of this gambit."
