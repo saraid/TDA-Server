@@ -54,6 +54,15 @@ module TDA
       enqueue_message "#{message} (#{@hand.length}):\r\n#{@hand}"
     end
 
+    def receives_choice(list)
+      set = ""
+      list.each_with_index { |choice, index|
+        set << "#{"%2d" % index}. #{choice}\r\n"
+      }
+      enqueue_message "Make a choice:\r\n#{set}"
+      list[self.receive_input]
+    end
+
     def dequeue_message
       @message_queue.shift
     end
