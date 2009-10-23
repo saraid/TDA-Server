@@ -130,7 +130,9 @@ module TDA
 
     class Archmage < Card
       def initialize
-        super(9, :mortal)
+        super(9, :mortal, Proc.new { |api|
+          #api.current_player_copies_power_from_ante
+        })
       end
     end
 
@@ -156,7 +158,8 @@ module TDA
 
     class BlueDragon < Card
       def initialize(strength)
-        super(strength, :evil_dragon)
+        super(strength, :evil_dragon, Proc.new { |api|
+        })
       end
     end
 
@@ -168,7 +171,16 @@ module TDA
 
     class BronzeDragon < Card
       def initialize(strength)
-        super(strength, :good_dragon)
+        super(strength, :good_dragon, Proc.new { |api|
+          # How many ante cards do we care about?
+          cards_to_receive = api.current_player.hand.space
+
+          # Check the card one higher than the highest we automatically take.
+          # Pose choice if third lowest is equal to second lowest.
+          # 
+          ante = api.ante
+          # pose_choice if ante[-3].strength == ante[2].strength
+        })
       end
     end
 
@@ -184,7 +196,9 @@ module TDA
 
     class Dracolich < Card
       def initialize
-        super(10, :undead_dragon)
+        super(10, :undead_dragon, Proc.new { |api|
+          #api.current_player_copies_power_from_evil_dragon
+        })
       end
     end
 
