@@ -97,6 +97,10 @@ module TDA
         player_to_left_of self.current_player
       end
 
+      def every_other_player
+        @players.select { |player| player != current_player }
+      end
+
       def pot
         @game.current_gambit.pot
       end
@@ -299,6 +303,7 @@ module TDA
 
         # TODO: Ante matches.
         @ante.finalize!
+        @controller.log @ante.join(', ')
         ante_leader = @ante.first
         gold_to_pay = ante_leader.strength
         @leader = @controller.players[ @ante.index(ante_leader) ]

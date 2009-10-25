@@ -13,7 +13,7 @@ module TDA
     end
 
     def stack_deck
-      self.unshift self.detect {|card| card.class.to_s.include?"RedDragon" }
+      self.unshift self.detect {|card| card.class.to_s.include?"BlueDragon" }
       self.uniq!
     end
 
@@ -157,6 +157,16 @@ module TDA
     class BlueDragon < Card
       def initialize(strength)
         super(strength, :evil_dragon, Proc.new { |api|
+          payment = api.current_player.flight.select { |card| card.evil_dragon? }.length
+          list = []
+          list << "Steal #{payment} from stakes"
+          list << "Each player pays #{payment} to stakes"
+          choice = api.current_player.receives_choice(list)
+          if choice.include?"Steal"
+            api.take_gold(:current_player, payment, :stakes)
+          elsif choice.include?"pays"
+            api.every_other_player.each { |player| api.pay_gold(player, payment, :stakes) }
+          end
         })
       end
     end
