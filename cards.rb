@@ -9,11 +9,11 @@ module TDA
       # Testing code
       # Restack the deck so desired card-to-test shows up.
       #
-      #stack_deck
+      stack_deck
     end
 
     def stack_deck
-      self.unshift self.detect {|card| card.class.to_s.include?"Tiamat" }
+      self.unshift self.detect {|card| card.class.to_s.include?"RedDragon" }
       self.uniq!
     end
 
@@ -55,8 +55,7 @@ module TDA
     def self.load(deck)
       # Add one of each non-dragon card.
       ["Archmage", "Bahamut", "Dracolich", "Dragonslayer", "Druid", "Fool", "Priest", "Princess", "Thief", "Tiamat"].each { |name|
-        card = TDA::Card.const_get(name).new unless (name == "Card" || name == "SetOfCards" || name[-6..-1]== "Dragon")
-        deck << card if card && (card.mortal? || card.dragon_god? || card.undead_dragon?)
+        deck << TDA::Card.const_get(name).new
       }
 
       [1, 2, 3, 5,  7,  9].each { |str| deck << TDA::Card::BlackDragon.new(str)  }
@@ -270,8 +269,8 @@ module TDA
     class RedDragon < Card
       def initialize(strength)
         super(strength, :evil_dragon, Proc.new { |api|
-          api.strongest_flight_pays_1_gold_to_current_player
-          api.strongest_flight_gives_1_random_card_to_current_player
+          api.strongest_flight_not_current_player_pays_1_gold_to_current_player
+          api.strongest_flight_not_current_player_gives_1_random_card_to_current_player
         })
       end
     end

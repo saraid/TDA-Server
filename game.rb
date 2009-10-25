@@ -61,6 +61,10 @@ module TDA
         @players.max { |a, b| a.flight.strength <=> b.flight.strength }
       end
 
+      def strongest_flight_not_current_player
+        @players.select { |player| player != current_player }.max { |a, b| a.flight.strength <=> b.flight.strength }
+      end
+
       def most_cards
         @players.max { |a, b| a.hand.length <=> b.hand.length }
       end
@@ -143,6 +147,7 @@ module TDA
       def give_cards(from, amt, special, to)
         player = self.send(from.to_sym)
         to = self.send(to.to_sym)
+
         amt = player.hand.length unless amt < player.hand.length
         amt.times do |i|
           card_index = rand(player.hand.length-1) if special.include? "random"
