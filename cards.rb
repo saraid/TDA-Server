@@ -9,14 +9,13 @@ module TDA
       # Testing code
       # Restack the deck so desired card-to-test shows up.
       #
-      self.unshift self.detect {|card| card.class.to_s.include?"Priest" }
-      self.uniq!
+      #stack_deck
     end
 
-    #def stack_deck
-      #self.unshift self.detect {|card| card.class.to_s.include?"Silver" }
-      #self.uniq!
-    #end
+    def stack_deck
+      self.unshift self.detect {|card| card.class.to_s.include?"Tiamat" }
+      self.uniq!
+    end
 
     def draw(amt)
       cards = []
@@ -110,7 +109,7 @@ module TDA
       end
       
       def trigger(api)
-        @power.call(api)
+        @power.call(api) unless @power.nil?
       end
 
       def to_s
