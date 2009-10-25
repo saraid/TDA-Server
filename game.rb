@@ -318,12 +318,11 @@ module TDA
         
         # Play Rounds
         @rounds = []
-        leader = @ante.index ante_leader
         until gambit_ends
           @controller.broadcast "Round #{@rounds.length+1}"
-          @current_round = Round.new(self, leader)
+          @current_round = Round.new(self, @controller.players.index(@leader))
           @rounds << @current_round.start
-          leader = @rounds.last.highest_card
+          @leader = @rounds.last.highest_card
           @controller.broadcast "#{@controller.players[leader].name} leads the next round."
         end
 
