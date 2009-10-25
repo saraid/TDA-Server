@@ -13,7 +13,7 @@ module TDA
     end
 
     def stack_deck
-      self.unshift self.detect {|card| card.class.to_s.include?"BlueDragon" }
+      self.unshift self.detect {|card| card.class.to_s.include?"slayer" }
       self.uniq!
     end
 
@@ -212,7 +212,22 @@ module TDA
 
     class Dragonslayer < Card
       def initialize
-        super(8, :mortal)
+        super(8, :mortal, Proc.new { |api|
+          players = api.players_with_flights_stronger_than 0
+          list = []
+          players.each { |player| 
+            player.flight.each { |card|
+              list << "#{player.name}'s #{card}" if card.strength < 8
+            }
+          }
+          choice = api.current_player.receives_choice(list)
+          choice = list.index(choice)
+          players.each { |player| 
+            player.flight.each { |card| 
+              api.deck.discard(card) and break if choice.zero?
+              choice = choice - 1
+          }}
+        })
       end
     end
 

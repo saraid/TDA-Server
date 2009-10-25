@@ -302,11 +302,11 @@ module TDA
         @controller.broadcast ante_message
 
         # TODO: Ante matches.
-        @ante.finalize!
-        @controller.log @ante.join(', ')
-        ante_leader = @ante.first
+        @controller.log(@ante.join(', '))
+        ante_leader = @ante.max { |a, b| a.strength <=> b.strength }
         gold_to_pay = ante_leader.strength
         @leader = @controller.players[ @ante.index(ante_leader) ]
+        @ante.finalize!
         @controller.broadcast "#{@leader.name} is leader of this gambit."
 
         # Feed the pot
