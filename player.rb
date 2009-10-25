@@ -60,7 +60,7 @@ module TDA
         set << "#{"%2d" % index}. #{choice}\r\n"
       }
       enqueue_message "Make a choice:\r\n#{set}"
-      list[self.receive_input]
+      list[self.receive_input.to_i]
     end
 
     def dequeue_message

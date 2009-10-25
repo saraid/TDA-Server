@@ -241,8 +241,11 @@ module TDA
           player = api.player_to_left
           list = player.hand.select { |card| card.strength < strength && card.evil_dragon? }
           choice = player.receives_choice(list << "Pay 5 gold")
-          api.player_to_left_pays_5_gold_to_current_player and return if choice == "Pay 5 gold"
-          api.player_to_left_gives_chosen_card_to_current_player
+          if choice == "Pay 5 gold"
+            api.player_to_left_pays_5_gold_to_current_player 
+          else
+            api.player_to_left_gives_chosen_cards_to_current_player(choice)
+          end
         })
       end
     end

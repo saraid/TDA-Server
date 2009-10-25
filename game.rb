@@ -89,6 +89,10 @@ module TDA
         @players[@players.index(player)-1]
       end
 
+      def player_to_left
+        player_to_left_of self.current_player
+      end
+
       def pot
         @game.current_gambit.pot
       end
@@ -152,7 +156,17 @@ module TDA
         @game.broadcast "#{player.name} gives #{amt} cards to #{to.name}"
       end
 
+      def give_chosen_cards(from, cards, to)
+        player = self.send(from.to_sym)
+        to = self.send(to.to_sym)
+        cards.each do |card|
+          to.hand << player.hand.delete(card)
+          @game.broadcast "#{player.name} gives #{to.name} a #{card}"
+        end
+      end
+
       def method_missing(id, *args, &block)
+        return give_chosen_cards($1, args, $2) if id.to_s =~ /^(\w+)_gives_chosen_cards_to_(\w+)$/
         return give_cards($1, $2.to_i, $3, $4) if id.to_s =~ /^(\w+)_gives_(\d+)(\w+)?_card_to_(\w+)$/
         return discard_cards($1, $2.to_i) if id.to_s =~ /^(\w+)_discards_(\d+)/
         return draw_cards($1, $2.to_i) if id.to_s =~ /^(\w+?)_draws_(\d+)/
